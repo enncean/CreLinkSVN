@@ -33,6 +33,7 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 				((desktop_rect.bottom - desktop_rect.top) / 2) - (window_height / 2),
 				window_width, window_height, TRUE);
 		}
+		SetFocus(GetDlgItem(hWnd, IDC_EDIT1));
 		break;
 		
 	case WM_COMMAND:
