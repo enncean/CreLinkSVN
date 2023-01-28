@@ -134,13 +134,13 @@ bool SetClipboardText(const std::string& text)
 {
 	bool result = false;
 
-	const HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, text.size());
+	const HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, text.size() + 1);
 	if (hGlobal != nullptr)
 	{
 		char* buffer = static_cast<char*>(GlobalLock(hGlobal));
 		if (buffer != nullptr)
 		{
-			strcpy_s(buffer, text.size(), text.c_str() + 1);
+			strcpy_s(buffer, text.size() + 1, text.c_str());
 			GlobalUnlock(hGlobal);
 
 			if (OpenClipboard(nullptr))
