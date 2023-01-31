@@ -1,5 +1,11 @@
 # CreLinkSVN
-SubversionのWCからRevision付きのURLを生成するツール
+SubversionのWCからRevision付きのURLを生成し、クリップボードにコピーするツール。
+
+## Requirement
+
+- Windows 10
+- Subversionインストール済み(svn.exeにPathが通っていること)
+
 
 ## Installation
 
