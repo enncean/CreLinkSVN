@@ -53,3 +53,24 @@ public:
 private:
 	std::string target_file;
 };
+
+class SVNLog : public SVNOut
+{
+public:
+	class LogItem
+	{
+	public:
+		LogItem(int a_revision, const std::string& a_author, const std::string& a_commit_datetime, const std::string& a_commit_message);
+		
+		const int revision;
+		const std::string author;
+		const std::string commit_datetime;
+		const std::string commit_message;
+	};
+	
+	SVNLog() = default;
+	void ParseFromXML(const std::string& svn_out_xml) override;
+
+	std::vector<LogItem> commit_log;
+	void ParseAndAddLogItem(const std::string& logentry_xml);
+};
