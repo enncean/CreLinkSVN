@@ -8,9 +8,9 @@ public:
 	SVNOut();
 	virtual void ParseFromXML(const std::string& svn_out_xml) = 0;
 
-	inline bool operator!() const
+	explicit operator bool() const
 	{
-		return !this->valid;
+		return this->valid;
 	}
 
 protected:
