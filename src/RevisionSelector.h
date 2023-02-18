@@ -2,13 +2,16 @@
 
 #include <Windows.h>
 
+#include "SVNOut.h"
+
 /**
  * Revision選択ダイアログを生成する。
  *
  * @param hInstance		インスタンスハンドル
+ * @param commit_log	対象ファイルのコミットログ
  * @return IDOK or IDCANCEL
  */
-INT_PTR SelectorWindow(HINSTANCE hInstance);
+INT_PTR SelectorWindow(HINSTANCE hInstance, std::vector<SVNLog::LogItem>& commit_log);
 
 /**
  * Revision選択ダイアログで選択したRevisionを取得する。<br>

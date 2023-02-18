@@ -58,7 +58,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// Read repository and check file.
 	{
 		const CreLinkCore::ReadRepositoryResult result = coreObj.ReadRepository();
-		if (result != CreLinkCore::ReadRepositoryResult::SUCCESS)
+		if ((result != CreLinkCore::ReadRepositoryResult::SUCCESS) &&
+			(result != CreLinkCore::ReadRepositoryResult::LOG_NOT_EXIST))
 		{
 			switch (result)
 			{
@@ -78,7 +79,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		}
 	}
 
-	const INT_PTR selector_ret = SelectorWindow(hInstance);
+	const INT_PTR selector_ret = SelectorWindow(hInstance, *coreObj.GetCommitLog());
 	if (selector_ret == IDOK)
 	{
 		std::string out = coreObj.GenerateURLWithRev(GetSelectedRevision());

@@ -72,8 +72,22 @@ CreLinkCore::ReadRepositoryResult CreLinkCore::ReadRepository()
     {
         return ReadRepositoryResult::FILE_NOT_VERSIONED;
     }
+	
+	// svn log
+    std::string rep_log;
+    ExecCmd("cd /d \"" + this->dir_path + "\" && svn log --xml \"" + this->file_name + "\"", rep_status);
+    this->target_commit_log.ParseFromXML(rep_status);
+	if (!this->target_commit_log)
+	{
+        return ReadRepositoryResult::LOG_NOT_EXIST;
+	}
 
     return ReadRepositoryResult::SUCCESS;
+}
+
+std::vector<SVNLog::LogItem> *CreLinkCore::GetCommitLog()
+{
+    return &this->target_commit_log.commit_log;
 }
 
 std::string CreLinkCore::GenerateURLWithRev(int revision) const
