@@ -60,23 +60,29 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		break;
 		
 	case WM_COMMAND:
-		if (wparam == IDOK)
+		switch (LOWORD(wparam))
 		{
-			char buffer[16];
-			GetDlgItemTextA(hWnd, IDC_EDIT1, buffer, 16);
-			::selected_revision = atoi(buffer);
-			if (::selected_revision > 0)
+		case IDOK:
 			{
-				EndDialog(hWnd, IDOK);
+				char buffer[16];
+				GetDlgItemTextA(hWnd, IDC_EDIT1, buffer, 16);
+				::selected_revision = atoi(buffer);
+				if (::selected_revision > 0)
+				{
+					EndDialog(hWnd, IDOK);
+				}
+				else
+				{
+					EndDialog(hWnd, IDCANCEL);
+				}
 			}
-			else
-			{
-				EndDialog(hWnd, IDCANCEL);
-			}
-		}
-		else if (wparam == IDCANCEL)
-		{
+			break;
+			
+		case IDCANCEL:
 			EndDialog(hWnd, IDCANCEL);
+			break;
+			
+		default: ;
 		}
 		break;
 		
