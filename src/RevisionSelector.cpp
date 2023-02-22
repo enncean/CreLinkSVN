@@ -43,6 +43,7 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		if (::revision_candidates != nullptr)
 		{
 			HWND hListbox = GetDlgItem(hWnd, IDC_LIST1);
+			int index = 0;
 			for (SVNLog::LogItem log_item : *revision_candidates)
 			{
 				std::ostringstream ss;
@@ -53,7 +54,8 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 				std::string list_text = ss.str();
 				int pos = SendMessage(hListbox, LB_ADDSTRING,
 					0, (LPARAM)std::wstring(list_text.begin(), list_text.end()).c_str());
-				SendMessage(hListbox, LB_SETITEMDATA, pos, (LPARAM)log_item.revision);
+				SendMessage(hListbox, LB_SETITEMDATA, pos, (LPARAM)index);
+				index++;
 			}
 		}
 		SetFocus(GetDlgItem(hWnd, IDC_EDIT1));
@@ -62,6 +64,19 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	case WM_COMMAND:
 		switch (LOWORD(wparam))
 		{
+		case IDC_LIST1:
+			if (::revision_candidates != nullptr)
+			{
+				const HWND hList = GetDlgItem(hWnd, IDC_LIST1);
+				const int selected_index = (int)SendMessage(hList, LB_GETCURSEL, 0, 0);
+				if (selected_index != LB_ERR)
+				{
+					const int data = (int)SendMessage(hList, LB_GETITEMDATA, selected_index, 0);
+					SetDlgItemTextA(hWnd, IDC_EDIT1, std::to_string((*::revision_candidates)[data].revision).c_str());
+				}
+			}
+			break;
+			
 		case IDOK:
 			{
 				char buffer[16];
