@@ -174,7 +174,7 @@ void SVNLog::ParseAndAddLogItem(const std::string& logentry_xml)
 		LogItem item(
 			std::stoi(SubstringXML(logentry_xml, element_revision_start, element_revision_end)),
 			SubstringXML(logentry_xml, tag_author_start, tag_author_end),
-			SubstringXML(logentry_xml, tag_date_start, tag_date_end),
+			ParseDayTime(SubstringXML(logentry_xml, tag_date_start, tag_date_end)),
 			SubstringXML(logentry_xml, tag_msg_start, tag_msg_end)
 		);
 		this->commit_log.push_back(item);
@@ -185,4 +185,15 @@ void SVNLog::ParseAndAddLogItem(const std::string& logentry_xml)
 	catch (std::out_of_range& e) // std::stoi() failed
 	{
 	}
+}
+
+std::string SVNLog::ParseDayTime(const std::string& log_daytime)
+{
+	int year, month, date, hour, min, sec;
+	sscanf_s(log_daytime.c_str(), "%d-%d-%dT%d:%d:%dZ",
+		&year, &month, &date, &hour, &min, &sec);
+
+	return std::string(
+		std::to_string(year) + "/" + std::to_string(month) + "/" + std::to_string(date) + " " +
+		std::to_string(hour) + ":" + std::to_string(min) + ":" + std::to_string(sec));
 }

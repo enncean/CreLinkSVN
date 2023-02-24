@@ -73,4 +73,7 @@ public:
 
 	std::vector<LogItem> commit_log;
 	void ParseAndAddLogItem(const std::string& logentry_xml);
+
+private:
+	static std::string ParseDayTime(const std::string& log_daytime);
 };
