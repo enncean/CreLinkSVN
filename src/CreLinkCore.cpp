@@ -46,8 +46,6 @@ void CreLinkCore::SetPath(const std::string& path)
     }
 }
 
-#include <Windows.h>
-
 CreLinkCore::ReadRepositoryResult CreLinkCore::ReadRepository()
 {
     // svn info -> repository url, relative path from wc root
@@ -75,8 +73,8 @@ CreLinkCore::ReadRepositoryResult CreLinkCore::ReadRepository()
 	
 	// svn log
     std::string rep_log;
-    ExecCmd("cd /d \"" + this->dir_path + "\" && svn log --xml \"" + this->file_name + "\"", rep_status);
-    this->target_commit_log.ParseFromXML(rep_status);
+    ExecCmd("cd /d \"" + this->dir_path + "\" && svn log --xml \"" + this->file_name + "\"", rep_log);
+    this->target_commit_log.ParseFromXML(rep_log);
 	if (!this->target_commit_log)
 	{
         return ReadRepositoryResult::LOG_NOT_EXIST;
