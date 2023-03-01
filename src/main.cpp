@@ -9,10 +9,11 @@ enum class ApplyArgsResult
 	SUCCESS,
 	PATH_NOT_SPECIFIED,
 	FILE_NOT_FOUND,
-	FILE_ACCESS_ERROR
+	FILE_ACCESS_ERROR,
+	INVALID_ARGUMENT
 };
 
-ApplyArgsResult ApplyArgs(CreLinkCore& coreObj);
+ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, std::string& resultInfo);
 bool SetClipboardText(const std::string& text);
 
 constexpr TCHAR APP_TITLE[] = TEXT("CreLinkSVN");
@@ -28,9 +29,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	}
 	
 	CreLinkCore coreObj;
+	bool quiet;
 	// Parse arguments.
 	{
-		const ApplyArgsResult result = ApplyArgs(coreObj);
+		std::string resultInfo;
+		const ApplyArgsResult result = ApplyArgs(coreObj, quiet, resultInfo);
 		if (result != ApplyArgsResult::SUCCESS)
 		{
 			switch (result)
@@ -49,6 +52,14 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				MessageBox(nullptr,
 					TEXT("Failed to access file or directory."),
 					APP_TITLE, MB_OK | MB_ICONERROR);
+				break;
+			case ApplyArgsResult::INVALID_ARGUMENT:
+				{
+					std::string msg = "Invalid argument '" + resultInfo + "'.";
+					MessageBox(nullptr,
+						std::wstring(msg.begin(), msg.end()).c_str(),
+						APP_TITLE, MB_OK | MB_ICONERROR);
+				}
 				break;
 			}
 			return -1;
@@ -85,13 +96,13 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		std::string out = coreObj.GenerateURLWithRev(GetSelectedRevision());
 		const bool result = SetClipboardText(out);
 
-		if (result)
+		if (result && !quiet)
 		{
 			std::string result_msg("Path \"" + out + "\" was copied to clipboard.");
 			MessageBox(nullptr, std::wstring(result_msg.begin(), result_msg.end()).c_str(), APP_TITLE, MB_OK);
 		}
 	}
-	else
+	else if (!quiet)
 	{
 		MessageBox(nullptr, TEXT("Revision selector canceled."), TEXT(""), MB_OK);
 	}
@@ -99,14 +110,40 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	return 0;
 }
 
-constexpr int ARG_TARGET_PATH = 1;
-ApplyArgsResult ApplyArgs(CreLinkCore& coreObj)
+ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, std::string& resultInfo)
 {
 	ApplyArgsResult ret = ApplyArgsResult::SUCCESS;
+	std::string path;
+	
+	quiet = false;
+	resultInfo = "";
 
-	if (__argc > ARG_TARGET_PATH)
+	for (int i = 0; i < __argc; i++)
 	{
-		const std::string path(__argv[ARG_TARGET_PATH]);
+		const std::string a(__argv[i]);
+		if (a[0] == '-')
+		{
+			switch (a[1])
+			{
+			case 'q':
+			case 'Q':
+				quiet = true;
+				break;
+				
+			default:
+				ret = ApplyArgsResult::INVALID_ARGUMENT;
+				resultInfo = a[1];
+				break;
+			}
+		}
+		else
+		{
+			path = a;
+		}
+	}
+	
+	if (!path.empty())
+	{
 		try
 		{
 			if (std::filesystem::exists(path))
