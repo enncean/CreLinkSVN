@@ -19,7 +19,7 @@ public:
 
 	CreLinkCore() = default;
 	void SetPath(const std::string& path);
-	ReadRepositoryResult ReadRepository();
+	ReadRepositoryResult ReadRepository(bool skipCheck = false);
 	std::vector<SVNLog::LogItem> *GetCommitLog();
 	std::string GenerateURLWithRev(int revision) const;
 

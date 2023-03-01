@@ -46,29 +46,32 @@ void CreLinkCore::SetPath(const std::string& path)
     }
 }
 
-CreLinkCore::ReadRepositoryResult CreLinkCore::ReadRepository()
+CreLinkCore::ReadRepositoryResult CreLinkCore::ReadRepository(bool skipCheck)
 {
-    // svn info -> repository url, relative path from wc root
-    std::string rep_info;
-    ExecCmd("cd /d \"" + this->dir_path + "\" && svn info --xml", rep_info);
-    this->repository_info.ParseFromXML(rep_info);
-	if (!this->repository_info)
-	{
-        return ReadRepositoryResult::NOT_REPOSITORY;
-	}
-
-	// svn status -> check file is versioned
-    SVNStatus wc_files_status(this->file_name);
-    std::string rep_status;
-    ExecCmd("cd /d \"" + this->dir_path + "\" && svn status --xml", rep_status);
-    wc_files_status.ParseFromXML(rep_status);
-	if (!wc_files_status)
-	{
-        return ReadRepositoryResult::FILE_CHECK_ERROR;
-	}
-    if (!wc_files_status.IsTargetVersioned())
+    if (!skipCheck)
     {
-        return ReadRepositoryResult::FILE_NOT_VERSIONED;
+        // svn info -> repository url, relative path from wc root
+        std::string rep_info;
+        ExecCmd("cd /d \"" + this->dir_path + "\" && svn info --xml", rep_info);
+        this->repository_info.ParseFromXML(rep_info);
+        if (!this->repository_info)
+        {
+            return ReadRepositoryResult::NOT_REPOSITORY;
+        }
+
+        // svn status -> check file is versioned
+        SVNStatus wc_files_status(this->file_name);
+        std::string rep_status;
+        ExecCmd("cd /d \"" + this->dir_path + "\" && svn status --xml", rep_status);
+        wc_files_status.ParseFromXML(rep_status);
+        if (!wc_files_status)
+        {
+            return ReadRepositoryResult::FILE_CHECK_ERROR;
+        }
+        if (!wc_files_status.IsTargetVersioned())
+        {
+            return ReadRepositoryResult::FILE_NOT_VERSIONED;
+        }
     }
 	
 	// svn log

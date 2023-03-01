@@ -13,27 +13,20 @@ enum class ApplyArgsResult
 	INVALID_ARGUMENT
 };
 
-ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, std::string& resultInfo);
+ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, bool& skipCheck, std::string& resultInfo);
 bool SetClipboardText(const std::string& text);
 
 constexpr TCHAR APP_TITLE[] = TEXT("CreLinkSVN");
 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	if (!CreLinkCore::CheckSubversionValid())
-	{
-		MessageBox(nullptr,
-			TEXT("\"svn\" command is not available."),
-			APP_TITLE, MB_OK | MB_ICONERROR);
-		return -1;
-	}
-	
 	CreLinkCore coreObj;
 	bool quiet;
+	bool skipCheck;
 	// Parse arguments.
 	{
 		std::string resultInfo;
-		const ApplyArgsResult result = ApplyArgs(coreObj, quiet, resultInfo);
+		const ApplyArgsResult result = ApplyArgs(coreObj, quiet, skipCheck, resultInfo);
 		if (result != ApplyArgsResult::SUCCESS)
 		{
 			switch (result)
@@ -66,11 +59,18 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		}
 	}
 
+	if (!skipCheck && !CreLinkCore::CheckSubversionValid())
+	{
+		MessageBox(nullptr,
+			TEXT("\"svn\" command is not available."),
+			APP_TITLE, MB_OK | MB_ICONERROR);
+		return -1;
+	}
+
 	// Read repository and check file.
 	{
-		const CreLinkCore::ReadRepositoryResult result = coreObj.ReadRepository();
-		if ((result != CreLinkCore::ReadRepositoryResult::SUCCESS) &&
-			(result != CreLinkCore::ReadRepositoryResult::LOG_NOT_EXIST))
+		const CreLinkCore::ReadRepositoryResult result = coreObj.ReadRepository(skipCheck);
+		if (result != CreLinkCore::ReadRepositoryResult::SUCCESS)
 		{
 			switch (result)
 			{
@@ -83,6 +83,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			case CreLinkCore::ReadRepositoryResult::FILE_NOT_VERSIONED:
 				MessageBox(nullptr,
 					TEXT("File is not under version control."),
+					APP_TITLE, MB_OK | MB_ICONERROR);
+				break;
+			case CreLinkCore::ReadRepositoryResult::LOG_NOT_EXIST:
+				MessageBox(nullptr,
+					TEXT("The log can't be read or empty."),
 					APP_TITLE, MB_OK | MB_ICONERROR);
 				break;
 			}
@@ -110,12 +115,13 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	return 0;
 }
 
-ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, std::string& resultInfo)
+ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, bool& skipCheck, std::string& resultInfo)
 {
 	ApplyArgsResult ret = ApplyArgsResult::SUCCESS;
 	std::string path;
 	
 	quiet = false;
+	skipCheck = false;
 	resultInfo = "";
 
 	for (int i = 0; i < __argc; i++)
@@ -128,6 +134,11 @@ ApplyArgsResult ApplyArgs(CreLinkCore& coreObj, bool& quiet, std::string& result
 			case 'q':
 			case 'Q':
 				quiet = true;
+				break;
+
+			case 's':
+			case 'S':
+				skipCheck = true;
 				break;
 				
 			default:
