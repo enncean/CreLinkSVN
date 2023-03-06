@@ -51,9 +51,11 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 					<< " | " << log_item.commit_datetime
 					<< " | " << log_item.author
 					<< " | " << log_item.commit_message;
-				std::string list_text = ss.str();
-				int pos = SendMessage(hListbox, LB_ADDSTRING,
-					0, (LPARAM)std::wstring(list_text.begin(), list_text.end()).c_str());
+				int length_wc = MultiByteToWideChar(CP_UTF8, 0, ss.str().c_str(), -1, nullptr, 0);
+				TCHAR* buffer_wc = new TCHAR[length_wc];
+				MultiByteToWideChar(CP_UTF8, 0, ss.str().c_str(), -1, buffer_wc, length_wc);
+				int pos = SendMessage(hListbox, LB_ADDSTRING, 0, (LPARAM)buffer_wc);
+				delete[] buffer_wc;
 				SendMessage(hListbox, LB_SETITEMDATA, pos, (LPARAM)index);
 				index++;
 			}
