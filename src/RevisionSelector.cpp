@@ -43,14 +43,19 @@ LRESULT CALLBACK DialogProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		if (::revision_candidates != nullptr)
 		{
 			HWND hListbox = GetDlgItem(hWnd, IDC_LIST1);
+
+			// Rev, Date, Author, Message
+			const int list_tabs[] = { 25, 100, 100, 100 };
+			SendMessage(hListbox, LB_SETTABSTOPS, 4, (LPARAM)list_tabs);
+
 			int index = 0;
 			for (SVNLog::LogItem log_item : *revision_candidates)
 			{
 				std::ostringstream ss;
 				ss << std::setfill(' ') << std::setw(5) << log_item.revision
-					<< " | " << log_item.commit_datetime
-					<< " | " << log_item.author
-					<< " | " << log_item.commit_message;
+					<< "\t" << log_item.commit_datetime
+					<< "\t" << log_item.author
+					<< "\t" << log_item.commit_message;
 				int length_wc = MultiByteToWideChar(CP_UTF8, 0, ss.str().c_str(), -1, nullptr, 0);
 				TCHAR* buffer_wc = new TCHAR[length_wc];
 				MultiByteToWideChar(CP_UTF8, 0, ss.str().c_str(), -1, buffer_wc, length_wc);
