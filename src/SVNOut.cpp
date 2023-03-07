@@ -1,5 +1,7 @@
 #include "SVNOut.h"
 
+#include <iomanip>
+#include <sstream>
 #include <regex>
 
 std::string TranslateToOneLineXML(const std::string& xml)
@@ -193,7 +195,13 @@ std::string SVNLog::ParseDayTime(const std::string& log_daytime)
 	sscanf_s(log_daytime.c_str(), "%d-%d-%dT%d:%d:%dZ",
 		&year, &month, &date, &hour, &min, &sec);
 
-	return std::string(
-		std::to_string(year) + "/" + std::to_string(month) + "/" + std::to_string(date) + " " +
-		std::to_string(hour) + ":" + std::to_string(min) + ":" + std::to_string(sec));
+	std::ostringstream ss;
+	ss << std::setw(4) << std::setfill('0') << year << "/";
+	ss << std::setw(2) << std::setfill('0') << month << "/";
+	ss << std::setw(2) << std::setfill('0') << date << " ";
+	ss << std::setw(2) << std::setfill('0') << hour << ":";
+	ss << std::setw(2) << std::setfill('0') << min << ":";
+	ss << std::setw(2) << std::setfill('0') << sec;
+
+	return ss.str();
 }
