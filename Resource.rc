@@ -116,12 +116,12 @@ BEGIN
         BLOCK "041104b0"
         BEGIN
             VALUE "FileDescription", "CreLinkSVN"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "CreLinkS.exe"
             VALUE "LegalCopyright", "Copyright (C) 2023  Enn."
             VALUE "OriginalFilename", "CreLinkSVN.exe"
             VALUE "ProductName", "CreLinkSVN"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", "1.0.0"
         END
     END
     BLOCK "VarFileInfo"
