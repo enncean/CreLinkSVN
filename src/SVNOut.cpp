@@ -146,13 +146,14 @@ void SVNLog::ParseFromXML(const std::string& svn_out_xml)
 	
 	const std::string tag_logentry_start("<logentry ");
 	const std::string tag_logentry_end("</logentry>");
+	const int substr_key_length = tag_logentry_start.length() + tag_logentry_end.length();
 	int read_point = xml_ol.find(tag_logentry_start);
 	std::string logentry;
 	do
 	{
 		logentry = SubstringXML(xml_ol, tag_logentry_start, tag_logentry_end, read_point);
 		ParseAndAddLogItem(logentry);
-		read_point += logentry.length();
+		read_point += logentry.length() + substr_key_length;
 	} while (!logentry.empty());
 
 	if (!this->commit_log.empty())
